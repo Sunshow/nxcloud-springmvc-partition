@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Component
-import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import javax.servlet.http.HttpServletRequest
@@ -16,11 +15,11 @@ import javax.servlet.http.HttpServletResponse
 class PartitionRequestContextHolder : ApplicationContextAware {
 
     companion object {
-        private lateinit var applicationContext: ApplicationContext
+        private val empty = object : PartitionRequestContext {}
 
-        private val attributes: ServletRequestAttributes by lazy {
-            RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes
-        }
+        private val contextThreadLocal: ThreadLocal<PartitionRequestContext> = ThreadLocal()
+
+        private lateinit var applicationContext: ApplicationContext
 
         private val partitionRegistrationMap: Map<String, MvcPartitionRegistration> by lazy {
             applicationContext.getBeansOfType(MvcPartitionRegistration::class.java)
@@ -50,10 +49,6 @@ class PartitionRequestContextHolder : ApplicationContextAware {
                 ?.partition
         }
 
-        private fun attributeKey(partition: String): String {
-            return "nxcloud.ext.partition.context.${partition}"
-        }
-
 
         private fun createContext(partition: String): PartitionRequestContext {
             val registration = partitionRegistrationMap[partition]
@@ -62,38 +57,27 @@ class PartitionRequestContextHolder : ApplicationContextAware {
         }
 
         @JvmStatic
-        fun current(): PartitionRequestContext? {
-            val key = partition
-                ?.let {
-                    attributeKey(it)
-                }
-                ?: return null
-
-            var context = attributes.getAttribute(key, RequestAttributes.SCOPE_REQUEST) as PartitionRequestContext?
+        fun current(): PartitionRequestContext {
+            var context = contextThreadLocal.get()
             if (context == null) {
-                context = createContext(partition!!)
-                attributes.setAttribute(key, context, RequestAttributes.SCOPE_REQUEST)
+                context = if (partition != null) {
+                    createContext(partition!!)
+                } else {
+                    empty
+                }
+                contextThreadLocal.set(context)
             }
             return context
         }
 
         @JvmStatic
         fun exists(): Boolean {
-            return partition
-                ?.let {
-                    val key = attributeKey(it)
-                    attributes.getAttribute(key, RequestAttributes.SCOPE_REQUEST) != null
-                }
-                ?: false
+            return contextThreadLocal.get() != null
         }
 
         @JvmStatic
         fun reset() {
-            partition
-                ?.apply {
-                    val key = attributeKey(this)
-                    attributes.removeAttribute(key, RequestAttributes.SCOPE_REQUEST)
-                }
+            contextThreadLocal.remove()
         }
     }
 
