@@ -2,6 +2,7 @@ package nxcloud.ext.springmvc.partition.context
 
 import nxcloud.ext.springmvc.partition.spi.MvcPartitionRegistration
 import nxcloud.ext.springmvc.partition.spi.PartitionRequestContext
+import org.apache.commons.lang3.StringUtils
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Component
@@ -27,19 +28,32 @@ class PartitionRequestContextHolder : ApplicationContextAware {
                 .toMap()
         }
 
+        @JvmStatic
+        val request: HttpServletRequest by lazy {
+            (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).request
+        }
+
+        @JvmStatic
+        val response: HttpServletResponse by lazy {
+            (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).response!!
+        }
+
+        private val requestURI by lazy {
+            StringUtils.substringAfter(request.requestURI, request.contextPath)
+        }
+
+        val partition: String? by lazy {
+            partitionRegistrationMap.values
+                .firstOrNull {
+                    requestURI.startsWith("/${it.partition}/")
+                }
+                ?.partition
+        }
+
         private fun attributeKey(partition: String): String {
             return "nxcloud.ext.partition.context.${partition}"
         }
 
-        @JvmStatic
-        fun getRequest(): HttpServletRequest {
-            return (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).request
-        }
-
-        @JvmStatic
-        fun getResponse(): HttpServletResponse {
-            return (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).response!!
-        }
 
         private fun createContext(partition: String): PartitionRequestContext {
             val registration = partitionRegistrationMap[partition]
@@ -48,26 +62,38 @@ class PartitionRequestContextHolder : ApplicationContextAware {
         }
 
         @JvmStatic
-        fun current(partition: String): PartitionRequestContext {
-            val key = attributeKey(partition)
+        fun current(): PartitionRequestContext? {
+            val key = partition
+                ?.let {
+                    attributeKey(it)
+                }
+                ?: return null
+
             var context = attributes.getAttribute(key, RequestAttributes.SCOPE_REQUEST) as PartitionRequestContext?
             if (context == null) {
-                context = createContext(partition)
+                context = createContext(partition!!)
                 attributes.setAttribute(key, context, RequestAttributes.SCOPE_REQUEST)
             }
             return context
         }
 
         @JvmStatic
-        fun exists(partition: String): Boolean {
-            val key = attributeKey(partition)
-            return attributes.getAttribute(key, RequestAttributes.SCOPE_REQUEST) != null
+        fun exists(): Boolean {
+            return partition
+                ?.let {
+                    val key = attributeKey(it)
+                    attributes.getAttribute(key, RequestAttributes.SCOPE_REQUEST) != null
+                }
+                ?: false
         }
 
         @JvmStatic
-        fun reset(partition: String) {
-            val key = attributeKey(partition)
-            attributes.removeAttribute(key, RequestAttributes.SCOPE_REQUEST)
+        fun reset() {
+            partition
+                ?.apply {
+                    val key = attributeKey(this)
+                    attributes.removeAttribute(key, RequestAttributes.SCOPE_REQUEST)
+                }
         }
     }
 

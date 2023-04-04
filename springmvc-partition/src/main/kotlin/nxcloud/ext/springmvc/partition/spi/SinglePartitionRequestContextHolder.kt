@@ -8,25 +8,34 @@ interface SinglePartitionRequestContextHolder<T : PartitionRequestContext> {
 
     val partition: String
 
+    private fun checkPartition() {
+        if (partition != PartitionRequestContextHolder.partition) {
+            throw IllegalStateException("Current partition is not '$partition'.")
+        }
+    }
+
     fun getRequest(): HttpServletRequest {
-        return PartitionRequestContextHolder.getRequest()
+        return PartitionRequestContextHolder.request
     }
 
     fun getResponse(): HttpServletResponse {
-        return PartitionRequestContextHolder.getResponse()
+        return PartitionRequestContextHolder.response
     }
 
     fun current(): T {
+        checkPartition()
         @Suppress("UNCHECKED_CAST")
-        return PartitionRequestContextHolder.current(partition) as T
+        return PartitionRequestContextHolder.current() as T
     }
 
     fun exists(): Boolean {
-        return PartitionRequestContextHolder.exists(partition)
+        checkPartition()
+        return PartitionRequestContextHolder.exists()
     }
 
     fun reset() {
-        PartitionRequestContextHolder.reset(partition)
+        checkPartition()
+        PartitionRequestContextHolder.reset()
     }
-    
+
 }
