@@ -1,5 +1,7 @@
 rootProject.name = "nxcloud-springmvc-partition"
 
+include(":springmvc-partition")
+
 pluginManagement {
     repositories {
         mavenCentral()
