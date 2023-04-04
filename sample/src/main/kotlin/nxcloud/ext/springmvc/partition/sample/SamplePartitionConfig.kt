@@ -9,7 +9,7 @@ class SamplePartitionConfig {
 
     @Bean
     protected fun adminPartition(): MvcPartitionRegistration {
-        return MvcPartitionRegistration("sample", SampleRequestContext::class.java)
+        return MvcPartitionRegistration("sample", SampleRequestContext::class.java, SampleServletWrapperException::class.java)
     }
 
 }

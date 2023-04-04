@@ -13,5 +13,5 @@ class SamplePartitionExceptionAdvice {
     fun exceptionHandler(e: PartitionServletWrapperException): ResponseEntity<Any> {
         return ResponseEntity<Any>(e.partition, HttpStatus.valueOf(e.statusCode))
     }
-    
+
 }

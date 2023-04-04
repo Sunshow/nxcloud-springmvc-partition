@@ -53,7 +53,7 @@ class PartitionRequestContextHolder : ApplicationContextAware {
         private fun createContext(partition: String): PartitionRequestContext {
             val registration = partitionRegistrationMap[partition]
                 ?: throw IllegalArgumentException("Partition '$partition' is not registered.")
-            return registration.contextClass.newInstance()
+            return registration.contextClass.getDeclaredConstructor().newInstance()
         }
 
         @JvmStatic

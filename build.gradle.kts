@@ -59,7 +59,7 @@ subprojects {
 
     allOpen {
         annotations(
-            "org.springframework.context.annotation.Configuration",
+                "org.springframework.context.annotation.Configuration",
         )
     }
 
@@ -80,7 +80,7 @@ subprojects {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_1_8.toString()
             freeCompilerArgs = listOf(
-                "-Xjvm-default=all",
+                    "-Xjvm-default=all",
             )
         }
     }
@@ -91,7 +91,7 @@ subprojects {
         useJUnitPlatform()
         @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
         jvmArgs = jvmArgs!! + listOf(
-            "-XX:+HeapDumpOnOutOfMemoryError"
+                "-XX:+HeapDumpOnOutOfMemoryError"
         )
 
         val javaToolchains = project.extensions.getByType<JavaToolchainService>()
@@ -133,7 +133,7 @@ subprojects {
     publishing {
 
         // 发布 release
-        // version = "0.0.1"
+        // version = "0.0.3"
 
         val sourcesJar by tasks.registering(Jar::class) {
             archiveClassifier.set("sources")
@@ -160,8 +160,8 @@ subprojects {
                     description.set("A convenient library for partition processing SpringMVC request by url prefix")
                     url.set("https://github.com/Sunshow/nxcloud-springmvc-partition")
                     properties.set(
-                        mapOf(
-                        )
+                            mapOf(
+                            )
                     )
                     licenses {
                         license {
@@ -186,7 +186,7 @@ subprojects {
         }
 
         if (project.hasProperty("publishUsername") && project.hasProperty("publishPassword")
-            && project.hasProperty("publishReleasesRepoUrl") && project.hasProperty("publishSnapshotsRepoUrl")
+                && project.hasProperty("publishReleasesRepoUrl") && project.hasProperty("publishSnapshotsRepoUrl")
         ) {
             repositories {
                 maven {
@@ -194,7 +194,7 @@ subprojects {
                     val publishSnapshotsRepoUrl: String by project
 
                     url = uri(
-                        if (version.toString().endsWith("SNAPSHOT")) publishSnapshotsRepoUrl else publishReleasesRepoUrl
+                            if (version.toString().endsWith("SNAPSHOT")) publishSnapshotsRepoUrl else publishReleasesRepoUrl
                     )
                     isAllowInsecureProtocol = true
 
