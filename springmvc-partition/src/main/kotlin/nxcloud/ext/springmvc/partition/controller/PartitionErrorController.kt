@@ -22,21 +22,31 @@ class PartitionErrorController : ErrorController {
     @Throws(Exception::class)
     fun handleError(request: HttpServletRequest, modelMap: ModelMap) {
         // 捕获从filter等处过来的异常或者处理404等 然后将异常重新抛出给全局处理
+        val statusCode = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as Int
         val exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION) as Exception?
-        if (exception != null) {
-            if (exception is ServletException) {
-                val forwardUri = request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI) as String
-                val mappingUri = StringUtils.substringAfter(forwardUri, request.contextPath)
+        val errorMessage = request.getAttribute(RequestDispatcher.ERROR_MESSAGE) as String?
 
-                partitions
-                    ?.first { partition ->
-                        mappingUri.startsWith("/${partition.partition}/")
-                    }
-                    ?.let { partition ->
-                        throw PartitionServletWrapperException(partition.partition, exception.message, exception.cause)
-                    }
+        val forwardUri = request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI) as String
+        val mappingUri = StringUtils.substringAfter(forwardUri, request.contextPath)
+
+        val partition = partitions
+            ?.firstOrNull { partition ->
+                mappingUri.startsWith("/${partition.partition}/")
             }
-            throw exception
-        }
+
+        throw PartitionServletWrapperException(
+            statusCode,
+            partition?.partition,
+            errorMessage
+                ?.takeIf {
+                    it.isNotEmpty()
+                }
+                ?: exception?.message,
+            if (exception != null && exception is ServletException) {
+                exception.cause
+            } else {
+                exception
+            }
+        )
     }
 }

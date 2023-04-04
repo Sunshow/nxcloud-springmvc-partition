@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class PartitionSampleApp
+class SamplePartitionApp
 
 fun main(args: Array<String>) {
-    runApplication<PartitionSampleApp>(*args)
+    runApplication<SamplePartitionApp>(*args)
 }
