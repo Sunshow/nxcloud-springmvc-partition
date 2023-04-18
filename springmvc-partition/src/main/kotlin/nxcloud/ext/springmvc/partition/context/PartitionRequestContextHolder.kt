@@ -28,23 +28,23 @@ class PartitionRequestContextHolder : ApplicationContextAware {
         }
 
         @JvmStatic
-        val request: HttpServletRequest by lazy {
-            (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).request
+        fun request(): HttpServletRequest {
+            return (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).request
         }
 
         @JvmStatic
-        val response: HttpServletResponse by lazy {
-            (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).response!!
+        fun response(): HttpServletResponse {
+            return (RequestContextHolder.getRequestAttributes()!! as ServletRequestAttributes).response!!
         }
 
-        private val requestURI by lazy {
-            StringUtils.substringAfter(request.requestURI, request.contextPath)
+        private fun requestURI(): String {
+            return StringUtils.substringAfter(request().requestURI, request().contextPath)
         }
 
-        val partition: String? by lazy {
-            partitionRegistrationMap.values
+        fun partition(): String? {
+            return partitionRegistrationMap.values
                 .firstOrNull {
-                    requestURI.startsWith("/${it.partition}/")
+                    requestURI().startsWith("/${it.partition}/")
                 }
                 ?.partition
         }
@@ -60,8 +60,8 @@ class PartitionRequestContextHolder : ApplicationContextAware {
         fun current(): PartitionRequestContext {
             var context = contextThreadLocal.get()
             if (context == null) {
-                context = if (partition != null) {
-                    createContext(partition!!)
+                context = if (partition() != null) {
+                    createContext(partition()!!)
                 } else {
                     empty
                 }
