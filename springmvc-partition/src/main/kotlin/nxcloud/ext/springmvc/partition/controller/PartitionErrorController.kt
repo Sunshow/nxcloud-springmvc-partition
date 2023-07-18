@@ -30,43 +30,46 @@ class PartitionErrorController : ErrorController {
         val mappingUri = StringUtils.substringAfter(forwardUri, request.contextPath)
 
         val partition = partitions
-                ?.firstOrNull { partition ->
-                    mappingUri.startsWith("/${partition.partition}/")
-                }
-                ?: throw PartitionServletWrapperException(
-                        statusCode,
-                        null,
-                        errorMessage
-                                ?.takeIf {
-                                    it.isNotEmpty()
-                                }
-                                ?: exception?.message,
-                        if (exception != null && exception is ServletException) {
-                            exception.cause
-                        } else {
-                            exception
-                        }
-                )
+            ?.firstOrNull { partition ->
+                mappingUri.startsWith("/${partition.partition}/")
+            }
+            ?: throw PartitionServletWrapperException(
+                statusCode = statusCode,
+                partition = null,
+                requestUri = forwardUri,
+                message = errorMessage
+                    ?.takeIf {
+                        it.isNotEmpty()
+                    }
+                    ?: exception?.message,
+                cause = if (exception != null && exception is ServletException) {
+                    exception.cause
+                } else {
+                    exception
+                },
+            )
 
         // 反射创建异常
         throw partition
-                .servletExceptionClass.getDeclaredConstructor(
-                        Int::class.java,
-                        String::class.java,
-                        Throwable::class.java
-                )
-                .newInstance(
-                        statusCode,
-                        errorMessage
-                                ?.takeIf {
-                                    it.isNotEmpty()
-                                }
-                                ?: exception?.message,
-                        if (exception != null && exception is ServletException) {
-                            exception.cause
-                        } else {
-                            exception
-                        }
-                )
+            .servletExceptionClass.getDeclaredConstructor(
+                Int::class.java,
+                String::class.java,
+                String::class.java,
+                Throwable::class.java
+            )
+            .newInstance(
+                statusCode,
+                forwardUri,
+                errorMessage
+                    ?.takeIf {
+                        it.isNotEmpty()
+                    }
+                    ?: exception?.message,
+                if (exception != null && exception is ServletException) {
+                    exception.cause
+                } else {
+                    exception
+                },
+            )
     }
 }
