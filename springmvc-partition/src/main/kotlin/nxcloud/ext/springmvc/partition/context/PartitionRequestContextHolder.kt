@@ -1,5 +1,7 @@
 package nxcloud.ext.springmvc.partition.context
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import nxcloud.ext.springmvc.partition.spi.MvcPartitionRegistration
 import nxcloud.ext.springmvc.partition.spi.PartitionRequestContext
 import org.apache.commons.lang3.StringUtils
@@ -8,8 +10,6 @@ import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Component
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 @Component
 class PartitionRequestContextHolder : ApplicationContextAware {

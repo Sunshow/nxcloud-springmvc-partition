@@ -1,6 +1,6 @@
 dependencies {
-    compileOnly(libs.spring.mvc)
-    compileOnly(libs.springboot.starter.web)
+    compileOnly("org.springframework:spring-webmvc")
+    compileOnly("org.springframework.boot:spring-boot-starter-web")
 
-    implementation(libs.commons.lang3)
+    implementation("org.apache.commons:commons-lang3")
 }

@@ -1,10 +1,10 @@
 package nxcloud.ext.springmvc.partition.interceptor
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import nxcloud.ext.springmvc.partition.context.PartitionRequestContextHolder
 import org.springframework.stereotype.Component
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 @Component
 class PartitionRequestContextInterceptor : BaseHandlerInterceptorAdapter() {

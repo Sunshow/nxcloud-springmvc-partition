@@ -1,5 +1,8 @@
 package nxcloud.ext.springmvc.partition.controller
 
+import jakarta.servlet.RequestDispatcher
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.HttpServletRequest
 import nxcloud.ext.springmvc.partition.exception.PartitionServletWrapperException
 import nxcloud.ext.springmvc.partition.spi.MvcPartitionRegistration
 import org.apache.commons.lang3.StringUtils
@@ -8,9 +11,6 @@ import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.ui.ModelMap
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.servlet.RequestDispatcher
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServletRequest
 
 @RestController
 class PartitionErrorController : ErrorController {
