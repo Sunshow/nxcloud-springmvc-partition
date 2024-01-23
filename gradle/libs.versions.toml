@@ -1,7 +1,7 @@
 [versions]
-org-jetbrains-kotlin = "1.9.0"
-org-springframework-boot = "3.1.2"
-kotlin-logging-jvm = "5.0.1"
+org-jetbrains-kotlin = "1.9.22"
+org-springframework-boot = "3.2.1"
+kotlin-logging-jvm = "6.0.3"
 
 [libraries]
 javax-jaxb = { module = "javax.xml.bind:jaxb-api", version = "2.3.1" }

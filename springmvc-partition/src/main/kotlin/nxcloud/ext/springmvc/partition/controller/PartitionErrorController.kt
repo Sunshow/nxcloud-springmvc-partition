@@ -4,10 +4,12 @@ import jakarta.servlet.RequestDispatcher
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import nxcloud.ext.springmvc.partition.exception.PartitionServletWrapperException
+import nxcloud.ext.springmvc.partition.exception.PartitionServletWrapperExceptionApplicationEvent
 import nxcloud.ext.springmvc.partition.spi.MvcPartitionRegistration
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.servlet.error.ErrorController
+import org.springframework.context.ApplicationContext
 import org.springframework.ui.ModelMap
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -17,6 +19,9 @@ class PartitionErrorController : ErrorController {
 
     @Autowired(required = false)
     private var partitions: List<MvcPartitionRegistration>? = null
+
+    @Autowired
+    private lateinit var applicationContext: ApplicationContext
 
     @RequestMapping("/error")
     @Throws(Exception::class)
@@ -71,5 +76,9 @@ class PartitionErrorController : ErrorController {
                     exception
                 },
             )
+            .also {
+                // 抛出异常的同时发布事件
+                applicationContext.publishEvent(PartitionServletWrapperExceptionApplicationEvent(it))
+            }
     }
 }
