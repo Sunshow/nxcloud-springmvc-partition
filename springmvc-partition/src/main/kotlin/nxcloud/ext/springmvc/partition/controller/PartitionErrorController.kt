@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest
 import nxcloud.ext.springmvc.partition.exception.PartitionServletWrapperException
 import nxcloud.ext.springmvc.partition.exception.PartitionServletWrapperExceptionApplicationEvent
 import nxcloud.ext.springmvc.partition.spi.MvcPartitionRegistration
+import nxcloud.ext.springmvc.partition.spi.MvcPartitionServletErrorContext
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.servlet.error.ErrorController
@@ -36,7 +37,20 @@ class PartitionErrorController : ErrorController {
 
         val partition = partitions
             ?.firstOrNull { partition ->
-                mappingUri.startsWith("/${partition.partition}/")
+                mappingUri.startsWith("/${partition.partition}/") && (
+                        partition.servletExceptionPredicate
+                            ?.invoke(
+                                MvcPartitionServletErrorContext(
+                                    partition,
+                                    statusCode,
+                                    exception,
+                                    errorMessage,
+                                    forwardUri,
+                                    mappingUri,
+                                )
+                            )
+                            ?: true
+                        )
             }
             ?: throw PartitionServletWrapperException(
                 statusCode = statusCode,
