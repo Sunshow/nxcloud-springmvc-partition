@@ -12,7 +12,7 @@ class PartitionRequestContextInterceptor : BaseHandlerInterceptorAdapter() {
     private val logger = KotlinLogging.logger {}
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
-        logger.debug("收到请求: {}", request.requestURI)
+        logger.debug { "${"收到请求: {}"} ${request.requestURI}" }
         PartitionRequestContextHolder.reset()
         return true
     }
@@ -25,7 +25,7 @@ class PartitionRequestContextInterceptor : BaseHandlerInterceptorAdapter() {
     ) {
         super.afterCompletion(request, response, handler, ex)
         PartitionRequestContextHolder.reset()
-        logger.debug("结束请求: {}", request.requestURI)
+        logger.debug { "${"结束请求: {}"} ${request.requestURI}" }
     }
 
 }
